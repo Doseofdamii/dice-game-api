@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎲 Dice Game - Roll to Win!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .balance-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .balance-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .balance-amount {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .game-status {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .status-active {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .status-inactive {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .dice-display {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 20px 0;
+            min-height: 100px;
+        }
+
+        .die {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: rollDice 0.5s ease-out;
+        }
+
+        @keyframes rollDice {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(90deg); }
+            50% { transform: rotate(180deg); }
+            75% { transform: rotate(270deg); }
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #bee5eb;
+        }
+
+        .message.win {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeaa7;
+            font-size: 1.2em;
+        }
+
+        .buttons {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0,0,0,0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-fund {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-roll {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            font-size: 1.2em;
+            padding: 20px;
+        }
+
+        .btn-end {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .rules {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .rules h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .rules ul {
+            margin-left: 20px;
+        }
+
+        .rules li {
+            margin-bottom: 5px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .roll-info {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .target-hint {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .target-hint.show {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .balance-amount {
+                font-size: 2em;
+            }
+
+            .die {
+                width: 60px;
+                height: 60px;
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 Dice Game</h1>
+        <p class="subtitle">Roll dice to match the target and win sats!</p>
+
+        <!-- Balance Display -->
+        <div class="balance-display">
+            <div class="balance-label">Your Balance</div>
+            <div class="balance-amount" id="balance">0 sats</div>
+        </div>
+
+        <!-- Game Status -->
+        <div class="game-status">
+            <span id="gameStatus" class="status-inactive">No game active</span>
+        </div>
+
+        <!-- Messages -->
+        <div id="message" class="message"></div>
+
+        <!-- Dice Display -->
+        <div class="dice-display" id="diceDisplay"></div>
+
+        <!-- Roll Info -->
+        <div class="roll-info" id="rollInfo"></div>
+
+        <!-- Target Hint (shown after second roll) -->
+        <div class="target-hint" id="targetHint"></div>
+
+        <!-- Buttons -->
+        <div class="buttons">
+            <button class="btn-fund" onclick="fundWallet()">
+                💰 Fund Wallet (155 sats)
+            </button>
+            <button class="btn-start" onclick="startGame()" id="btnStart">
+                🎮 Start Game (20 sats)
+            </button>
+            <button class="btn-roll" onclick="rollDice()" id="btnRoll" disabled>
+                🎲 Roll Dice
+            </button>
+            <button class="btn-end" onclick="endGame()" id="btnEnd" disabled>
+                🏁 End Game
+            </button>
+        </div>
+
+        <!-- Rules -->
+        <div class="rules">
+            <h3>📜 How to Play</h3>
+            <ul>
+                <li><strong>Fund Wallet:</strong> Get 155 sats (only if balance ≤ 35)</li>
+                <li><strong>Start Game:</strong> Costs 20 sats, target number (2-12) is chosen</li>
+                <li><strong>Roll Dice:</strong> First roll costs 5 sats, second roll is FREE!</li>
+                <li><strong>Win:</strong> If your sum equals the target, win 10 sats! 🎉</li>
+                <li><strong>Keep Rolling:</strong> Each pair of rolls costs 5 sats</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // API base URL - change this if your server runs on different port
+        const API_URL = 'http://localhost:8080';
+
+        let gameActive = false;
+        let firstRollValue = null;
+
+        // Initialize
+        window.onload = function() {
+            updateBalance();
+        };
+
+        // Show message
+        function showMessage(text, type = 'info') {
+            const msgEl = document.getElementById('message');
+            msgEl.textContent = text;
+            msgEl.className = 'message show ' + type;
+            
+            setTimeout(() => {
+                msgEl.classList.remove('show');
+            }, 5000);
+        }
+
+        // Update balance display
+        async function updateBalance() {
+            try {
+                const response = await fetch(`${API_URL}/wallet/balance`);
+                const data = await response.json();
+                document.getElementById('balance').textContent = `${data.balance} sats`;
+            } catch (error) {
+                console.error('Error fetching balance:', error);
+            }
+        }
+
+        // Update game status
+        function updateGameStatus(active) {
+            gameActive = active;
+            const statusEl = document.getElementById('gameStatus');
+            const btnStart = document.getElementById('btnStart');
+            const btnRoll = document.getElementById('btnRoll');
+            const btnEnd = document.getElementById('btnEnd');
+
+            if (active) {
+                statusEl.textContent = '🎮 Game Active - Roll the dice!';
+                statusEl.className = 'status-active';
+                btnStart.disabled = true;
+                btnRoll.disabled = false;
+                btnEnd.disabled = false;
+            } else {
+                statusEl.textContent = '❌ No game active';
+                statusEl.className = 'status-inactive';
+                btnStart.disabled = false;
+                btnRoll.disabled = true;
+                btnEnd.disabled = true;
+                document.getElementById('diceDisplay').innerHTML = '';
+                document.getElementById('rollInfo').textContent = '';
+                document.getElementById('targetHint').classList.remove('show');
+            }
+        }
+
+        // Fund Wallet
+        async function fundWallet() {
+            try {
+                const response = await fetch(`${API_URL}/wallet/fund`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage('✅ ' + data.message, 'success');
+                    updateBalance();
+                } else {
+                    showMessage('❌ ' + data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('❌ Error funding wallet', 'error');
+            }
+        }
+
+        // Start Game
+        async function startGame() {
+            try {
+                const response = await fetch(`${API_URL}/game/start`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage('🎮 ' + data.message, 'success');
+                    updateBalance();
+                    updateGameStatus(true);
+                    firstRollValue = null;
+                } else {
+                    showMessage('❌ ' + data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('❌ Error starting game', 'error');
+            }
+        }
+
+        // Roll Dice
+        async function rollDice() {
+            try {
+                const response = await fetch(`${API_URL}/dice/roll`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayDice(data);
+                    updateBalance();
+                    
+                    if (data.is_first_roll) {
+                        firstRollValue = data.roll;
+                        document.getElementById('rollInfo').textContent = 
+                            '🎲 First roll complete! Roll again for second die.';
+                    } else {
+                        // Second roll - check win/lose
+                        document.getElementById('rollInfo').textContent = '';
+                        
+                        if (data.won) {
+                            showMessage(data.message, 'win');
+                        } else {
+                            showMessage(data.message, 'info');
+                        }
+                        
+                        // Show target hint
+                        const hintEl = document.getElementById('targetHint');
+                        hintEl.textContent = `🎯 Target was ${data.target}. ${data.won ? 'You matched it! 🎉' : 'Try again!'}`;
+                        hintEl.classList.add('show');
+                        
+                        firstRollValue = null;
+                    }
+                } else {
+                    showMessage('❌ ' + data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('❌ Error rolling dice', 'error');
+            }
+        }
+
+        // Display Dice
+        function displayDice(data) {
+            const diceDisplay = document.getElementById('diceDisplay');
+            
+            if (data.is_first_roll) {
+                // Show only first die
+                diceDisplay.innerHTML = `<div class="die">${data.roll}</div>`;
+            } else {
+                // Show both dice
+                diceDisplay.innerHTML = `
+                    <div class="die">${data.first_roll}</div>
+                    <div class="die">${data.second_roll}</div>
+                `;
+            }
+        }
+
+        // End Game
+        async function endGame() {
+            try {
+                const response = await fetch(`${API_URL}/game/end`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage('🏁 ' + data.message + `. Final balance: ${data.balance} sats`, 'info');
+                    updateBalance();
+                    updateGameStatus(false);
+                } else {
+                    showMessage('❌ ' + data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('❌ Error ending game', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
